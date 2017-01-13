@@ -1,0 +1,12 @@
+Bundle-SymbolicName: gitrake.cli
+
+Conditional-Package: \
+	com.beust.jcommander.*,\
+	com.google.gson.*,\
+	org.eclipse.egit.github.core.*
+
+JPM-Command: gitrake
+
+Main-Class: com.liferay.gitrake.cli.Gitrake
+
+Private-Package: com.liferay.gitrake.cli.*
