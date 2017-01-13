@@ -24,6 +24,8 @@ import org.eclipse.egit.github.core.client.PageIterator;
 import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
+import org.ocpsoft.prettytime.PrettyTime;
+
 /**
  * @author Gregory Amerson
  */
@@ -108,12 +110,19 @@ public class Gitrake {
 		for (PullRequest pr : interestingPrs) {
 			StringBuilder sb = new StringBuilder();
 
-			sb.append(_green(Integer.toString(pr.getNumber())));
+			sb.append(_green("#" + pr.getNumber()));
 			sb.append(" ");
 			sb.append(pr.getTitle());
 			sb.append(" ");
-			sb.append(_green("@" + pr.getUser().getLogin()));
-			sb.append(" ");
+			sb.append(_purple("@" + pr.getUser().getLogin()));
+			sb.append(" ( ");
+
+			PrettyTime prettyTime = new PrettyTime();
+
+			sb.append(prettyTime.format(pr.getCreatedAt()));
+
+			sb.append(" ) ");
+			sb.append("");
 			sb.append(_blue(pr.getHtmlUrl()));
 
 			System.out.println(sb.toString());
@@ -133,8 +142,7 @@ public class Gitrake {
 	}
 
 	private String _blue(String msg) {
-		//return "\\x1b[31m" + msg + "\\x1b[0m";
-		return msg;
+		return _ANSI_BLUE + msg + _ANSI_RESET;
 	}
 
 	private void _configureClient(GitHubClient client) {
@@ -184,8 +192,7 @@ public class Gitrake {
 	}
 
 	private String _green(String msg) {
-		//return "\\x1b[32m" + msg + "\\x1b[0m";
-		return msg;
+		return _ANSI_GREEN + msg + _ANSI_RESET;
 	}
 
 	private boolean _isInterestingFile(CommitFile file, String filePath) {
@@ -204,7 +211,7 @@ public class Gitrake {
 
 		System.out.print("\33[1A\33[2K"); // clear the line
 		System.out.println(
-			"Searching #" + pr.getNumber() + " " + pr.getTitle());
+			"Searching " + _green("#" + pr.getNumber()) + " " + pr.getTitle());
 
 		try {
 			List<CommitFile> files = prService.getFiles(repo, pr.getNumber());
@@ -224,6 +231,18 @@ public class Gitrake {
 
 		return false;
 	}
+
+	private String _purple(String msg) {
+		return _ANSI_PURPLE + msg + _ANSI_RESET;
+	}
+
+	private static final String _ANSI_BLUE = "\u001B[34m";
+
+	private static final String _ANSI_GREEN = "\u001B[32m";
+
+	private static final String _ANSI_PURPLE = "\u001B[35m";
+
+	private static final String _ANSI_RESET = "\u001B[0m";
 
 	private final PullRequestService _prService;
 	private final Repository _repo;
