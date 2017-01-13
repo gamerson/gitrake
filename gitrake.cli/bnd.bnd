@@ -1,6 +1,6 @@
 Bundle-SymbolicName: gitrake.cli
 
-Conditional-Package: \
+Conditional-Package:\
 	com.beust.jcommander.*,\
 	com.google.gson.*,\
 	org.eclipse.egit.github.core.*

@@ -1,5 +1,7 @@
 package com.liferay.gitrake.cli.internal;
 
+import com.liferay.gitrake.cli.Gitrake;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +24,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import com.liferay.gitrake.cli.Gitrake;
 
 /**
  * @author Andrea Di Giorgi
@@ -146,8 +146,7 @@ public class FileUtil {
 	}
 
 	public static File getJarFile() throws Exception {
-		ProtectionDomain protectionDomain =
-			Gitrake.class.getProtectionDomain();
+		ProtectionDomain protectionDomain = Gitrake.class.getProtectionDomain();
 
 		CodeSource codeSource = protectionDomain.getCodeSource();
 

@@ -46,6 +46,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.liferay</groupId>
+				<artifactId>com.liferay.source.formatter</artifactId>
+				<version>1.0.341</version>
+			</plugin>
 		</plugins>
 	</build>
 	<modules>
