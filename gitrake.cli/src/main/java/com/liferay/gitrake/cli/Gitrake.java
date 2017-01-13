@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -110,7 +112,7 @@ public class Gitrake {
 			sb.append(" ");
 			sb.append(pr.getTitle());
 			sb.append(" ");
-			sb.append(_green(pr.getUser().getLogin()));
+			sb.append(_green("@" + pr.getUser().getLogin()));
 			sb.append(" ");
 			sb.append(_blue(pr.getHtmlUrl()));
 
@@ -157,8 +159,14 @@ public class Gitrake {
 
 		List<PullRequest> interestingPrs = new ArrayList<>();
 
+		Iterator<Collection<PullRequest>> iterator = prs.iterator();
+
+		if (iterator.hasNext()) {
+			System.out.println();
+		}
+
 		for (int i = 0; i < limit; i += pageSize) {
-			List<PullRequest> foundPrs = prs.iterator().next().stream()
+			List<PullRequest> foundPrs = iterator.next().stream()
 				.filter(pr -> _isInterestingPr(_repo, _prService, pr, filePath))
 				.collect(Collectors.toList());
 
@@ -194,8 +202,9 @@ public class Gitrake {
 		Repository repo, PullRequestService prService, PullRequest pr,
 		String filePath) {
 
+		System.out.print("\33[1A\33[2K"); // clear the line
 		System.out.println(
-			"Searching pr #" + pr.getNumber() + " " + pr.getTitle());
+			"Searching #" + pr.getNumber() + " " + pr.getTitle());
 
 		try {
 			List<CommitFile> files = prService.getFiles(repo, pr.getNumber());
