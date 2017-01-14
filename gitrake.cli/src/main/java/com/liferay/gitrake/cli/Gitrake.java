@@ -121,7 +121,10 @@ public class Gitrake {
 
 			List<CommitFile> files = _prService.getFiles(_repo, pr.getNumber());
 
-			files.stream().forEach(
+			files.stream().filter(file ->
+				filePaths.stream().filter(filePath ->
+					file.getFilename().startsWith(
+						filePath)).count() > 0).forEach(
 				file -> System.out.println("\t" + file.getFilename()));
 
 			System.out.println();
@@ -166,9 +169,9 @@ public class Gitrake {
 		}
 
 		for (int i = 0; i < limit; i += pageSize) {
-			List<PullRequest> foundPrs = iterator.next().stream()
-				.filter(pr -> _isInterestingPr(_repo, _prService, pr, filePaths))
-				.collect(Collectors.toList());
+			List<PullRequest> foundPrs = iterator.next().stream().filter(pr ->
+				_isInterestingPr(_repo, _prService, pr, filePaths)).collect(
+					Collectors.toList());
 
 			if (foundPrs != null) {
 				interestingPrs.addAll(foundPrs);
@@ -207,9 +210,8 @@ public class Gitrake {
 		try {
 			List<CommitFile> files = prService.getFiles(repo, pr.getNumber());
 
-			if (files.stream()
-					.filter(file -> _isInterestingFile(file, filePaths))
-						.count() > 0) {
+			if (files.stream().filter(file ->
+					_isInterestingFile(file, filePaths)).count() > 0) {
 
 				return true;
 			}
