@@ -2,13 +2,15 @@ package com.liferay.gitrake.cli;
 
 import com.beust.jcommander.Parameter;
 
+import java.util.List;
+
 /**
  * @author Gregory Amerson
  */
 public class GitrakeArgs {
 
-	public String getFilePath() {
-		return _filePath;
+	public List<String> getFilePaths() {
+		return _filePaths;
 	}
 
 	public int getLimit() {
@@ -28,10 +30,11 @@ public class GitrakeArgs {
 	}
 
 	@Parameter(
-		description = "The file path to search in closed PRs", help = true,
-		names = {"-f", "--file-path"}, required = true
+		description = "The list of file paths to search in closed PRs",
+		help = true, names = {"-f", "--file-paths"}, required = true,
+		variableArity = true
 	)
-	private String _filePath;
+	private List<String> _filePaths;
 
 	@Parameter(
 		description = "Print this message.", help = true,
@@ -41,13 +44,13 @@ public class GitrakeArgs {
 
 	@Parameter(
 		description = "The total limit of search results when searching prs.",
-		help = true, names = {"-l", "--limit"}, required = true
+		help = true, names = {"-l", "--limit"}
 	)
 	private int _limit = 50;
 
 	@Parameter(
 		description = "The search page size when hitting github api.",
-		help = true, names = {"-p", "--page-size"}, required = true
+		help = true, names = {"-p", "--page-size"}
 	)
 	private int _pageSize = 10;
 

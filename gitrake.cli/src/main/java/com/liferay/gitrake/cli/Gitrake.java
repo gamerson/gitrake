@@ -3,8 +3,6 @@ package com.liferay.gitrake.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 
-import com.liferay.gitrake.cli.internal.FileUtil;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -37,14 +36,7 @@ public class Gitrake {
 		JCommander jCommander = new JCommander(gitrakeArgs);
 
 		try {
-			File jarFile = FileUtil.getJarFile();
-
-			if (jarFile.isFile()) {
-				jCommander.setProgramName("java -jar " + jarFile.getName());
-			}
-			else {
-				jCommander.setProgramName("gitrake");
-			}
+			jCommander.setProgramName("gitrake");
 
 			jCommander.parse(args);
 
@@ -73,7 +65,7 @@ public class Gitrake {
 		}
 
 		String repoPath = gitrakeArgs.getRepoPath();
-		String filePath = gitrakeArgs.getFilePath();
+		List<String> filePaths = gitrakeArgs.getFilePaths();
 		int pageSize = gitrakeArgs.getPageSize();
 		int limit = gitrakeArgs.getLimit();
 
@@ -100,7 +92,7 @@ public class Gitrake {
 		_configureClient(_prService.getClient());
 
 		List<PullRequest> interestingPrs = _findInterestingPrs(
-			filePath, pageSize, limit);
+			filePaths, pageSize, limit);
 
 		if (!interestingPrs.isEmpty()) {
 			System.out.println(
@@ -159,7 +151,7 @@ public class Gitrake {
 	}
 
 	private List<PullRequest> _findInterestingPrs(
-			String filePath, int pageSize, int limit)
+			List<String> filePaths, int pageSize, int limit)
 		throws IOException {
 
 		PageIterator<PullRequest> prs = _prService.pagePullRequests(
@@ -175,7 +167,7 @@ public class Gitrake {
 
 		for (int i = 0; i < limit; i += pageSize) {
 			List<PullRequest> foundPrs = iterator.next().stream()
-				.filter(pr -> _isInterestingPr(_repo, _prService, pr, filePath))
+				.filter(pr -> _isInterestingPr(_repo, _prService, pr, filePaths))
 				.collect(Collectors.toList());
 
 			if (foundPrs != null) {
@@ -195,19 +187,18 @@ public class Gitrake {
 		return _ANSI_GREEN + msg + _ANSI_RESET;
 	}
 
-	private boolean _isInterestingFile(CommitFile file, String filePath) {
-		if ((file != null) && (file.getFilename() != null) &&
-			file.getFilename().startsWith(filePath)) {
+	private boolean _isInterestingFile(
+		CommitFile file, List<String> filePaths) {
 
-			return true;
-		}
+		Optional<String> found = filePaths.stream().filter(
+			filePath -> file.getFilename().startsWith(filePath)).findFirst();
 
-		return false;
+		return found.isPresent();
 	}
 
 	private boolean _isInterestingPr(
 		Repository repo, PullRequestService prService, PullRequest pr,
-		String filePath) {
+		List<String> filePaths) {
 
 		System.out.print("\33[1A\33[2K"); // clear the line
 		System.out.println(
@@ -217,7 +208,7 @@ public class Gitrake {
 			List<CommitFile> files = prService.getFiles(repo, pr.getNumber());
 
 			if (files.stream()
-					.filter(file -> _isInterestingFile(file, filePath))
+					.filter(file -> _isInterestingFile(file, filePaths))
 						.count() > 0) {
 
 				return true;
